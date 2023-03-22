@@ -1,3 +1,4 @@
+using DinnerApp.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,6 @@ namespace DinnerApp.Application.Common.Interfaces.Authentication
 {
     public interface IJWTTokenGenerator
     {
-        string GenerateToken(Guid userId,string firstName,string lastName);
+        string GenerateToken(User user);
     }
 }

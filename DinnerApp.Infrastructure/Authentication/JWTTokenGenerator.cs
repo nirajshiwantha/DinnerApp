@@ -8,6 +8,7 @@ using DinnerApp.Application.Common.Interfaces.Authentication;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
 using System.Text;
+using DinnerApp.Domain.Entities;
 
 namespace DinnerApp.Infrastructure.Authentication
 {
@@ -17,7 +18,7 @@ namespace DinnerApp.Infrastructure.Authentication
         public JWTTokenGenerator(IOptions<JWTSettings> jwtOptions){
             _jwtSettings = jwtOptions.Value;
         }
-        public string GenerateToken(Guid userId, string firstName, string lastName)
+        public string GenerateToken(User user)
         {
             var signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(
@@ -27,9 +28,9 @@ namespace DinnerApp.Infrastructure.Authentication
             
             var claims = new []
             {
-                new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-                new Claim(JwtRegisteredClaimNames.GivenName, firstName),
-                new Claim(JwtRegisteredClaimNames.FamilyName, lastName),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName),
+                new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 
             };
