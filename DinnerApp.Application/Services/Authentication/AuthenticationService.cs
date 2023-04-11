@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DinnerApp.Application.Common.Errors;
 using DinnerApp.Application.Common.Interfaces.Authentication;
 using DinnerApp.Application.Common.Interfaces.Persistance;
 using DinnerApp.Domain.Entities;
@@ -26,7 +27,7 @@ namespace DinnerApp.Application.Services.Authentication
             //validate the user does not exists
             if (_userRepository.GetUserByEmail(email) is not null) 
             {
-                throw new Exception("User with this email already exists!");
+                throw new DuplicateEmailException();
             }
 
 

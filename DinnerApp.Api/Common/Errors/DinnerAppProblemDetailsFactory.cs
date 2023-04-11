@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 
-namespace DinnerApp.Api.Errors;
+namespace DinnerApp.Api.Common.Errors;
 
 public class DinnerAppProblemDetailsFactory : ProblemDetailsFactory
 {
@@ -91,7 +91,7 @@ public class DinnerAppProblemDetailsFactory : ProblemDetailsFactory
             problemDetails.Extensions["traceId"] = traceId;
         }
 
-        problemDetails.Extensions.Add("Added Property","value");
+        problemDetails.Extensions.Add("Added Property", "value");
 
         _configure?.Invoke(new() { HttpContext = httpContext!, ProblemDetails = problemDetails });
     }
