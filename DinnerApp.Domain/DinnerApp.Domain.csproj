@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="OneOf" Version="3.0.243" />
+  </ItemGroup>
+
 </Project>

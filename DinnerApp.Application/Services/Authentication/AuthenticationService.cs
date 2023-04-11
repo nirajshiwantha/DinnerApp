@@ -6,6 +6,7 @@ using DinnerApp.Application.Common.Errors;
 using DinnerApp.Application.Common.Interfaces.Authentication;
 using DinnerApp.Application.Common.Interfaces.Persistance;
 using DinnerApp.Domain.Entities;
+using OneOf;
 
 namespace DinnerApp.Application.Services.Authentication
 {
@@ -21,13 +22,13 @@ namespace DinnerApp.Application.Services.Authentication
 
 
 
-        public AuthenticationResult Register(string firstName, string lastName, string email, string password)
+        public OneOf<AuthenticationResult, DuplicateEmailError > Register(string firstName, string lastName, string email, string password)
         {
 
             //validate the user does not exists
             if (_userRepository.GetUserByEmail(email) is not null) 
             {
-                throw new DuplicateEmailException();
+                return new DuplicateEmailError();
             }
 
 
@@ -51,7 +52,7 @@ namespace DinnerApp.Application.Services.Authentication
                 token);
         }
 
-        public AuthenticationResult Login(string email, string password)
+        public OneOf<AuthenticationResult, DuplicateEmailError > Login(string email, string password)
         {
             // Validate the user exists
             if(_userRepository.GetUserByEmail(email) is not User user) 
