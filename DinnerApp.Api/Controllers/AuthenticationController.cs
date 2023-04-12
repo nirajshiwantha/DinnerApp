@@ -8,12 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 using OneOf;
 using DinnerApp.Application.Common.Errors;
 using FluentResults;
+using ErrorOr;
+using DinnerApp.Domain.Common.Errors;
 
 namespace DinnerApp.Api.Controllers
 {
-    [ApiController]
     [Route("auth")]
-    public class AuthenticationController : ControllerBase
+    public class AuthenticationController : ApiController // This class inherits from the "ApiController" class not ControllerBase
     {
         private readonly IAuthenticationService _authenticationService;
 
@@ -25,25 +26,39 @@ namespace DinnerApp.Api.Controllers
 
         [HttpPost("register")]
         public IActionResult Register(RegisterRequest request){
-            
-            Result<AuthenticationResult> registerResult = _authenticationService.Register(
+
+            var authResult = _authenticationService.Register(
                 request.FirstName,
                 request.LastName,
                 request.Email,
                 request.Password);
 
-            if (registerResult.IsSuccess)
-            {
-                return Ok(MapAuthResult(registerResult.Value));
-            }
-            var firstError = registerResult.Errors[0];
+            return authResult.Match(
+                authResult => Ok(MapAuthResult(authResult)),
+                errors => Problem(errors)
+                );    
+        }
 
-            if (firstError is DuplicateEmailError) 
-            {
-                return Problem(statusCode: StatusCodes.Status409Conflict, detail: "Email Already Exisist!");
-            }
 
-            return Problem();      
+        [HttpPost("login")]
+        public IActionResult Login(LoginRequest request){
+
+
+            var loginResult = _authenticationService.Login(
+                request.Email,
+                request.Password);
+
+            if (loginResult.IsError && loginResult.FirstError == Errors.Authentication.InvalidCredentials) {
+                return Problem(
+                    statusCode: StatusCodes.Status401Unauthorized,
+                    title: loginResult.FirstError.Description
+                    );
+            }
+            
+            return loginResult.Match(
+                authResult => Ok(MapAuthResult(authResult)),
+                errors => Problem(errors)
+                );
         }
 
         private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
@@ -57,21 +72,5 @@ namespace DinnerApp.Api.Controllers
             );
         }
 
-        [HttpPost("login")]
-        public IActionResult Register(LoginRequest request){
-
-
-            Result<AuthenticationResult > loginResult = _authenticationService.Login(
-                request.Email,
-                request.Password);
-
-            if (loginResult.IsSuccess)
-            {
-                return Ok(MapAuthResult(loginResult.Value));
-            }
-
-            return Problem(statusCode: StatusCodes.Status500InternalServerError, title: "Internal Server Error!");
-        }
-    
     }
 }

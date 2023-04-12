@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using DinnerApp.Application.Common.Errors;
 using DinnerApp.Application.Common.Interfaces.Authentication;
 using DinnerApp.Application.Common.Interfaces.Persistance;
+using DinnerApp.Domain.Common.Errors;
 using DinnerApp.Domain.Entities;
-using FluentResults;
+using ErrorOr;
 
 namespace DinnerApp.Application.Services.Authentication
 {
@@ -22,13 +23,13 @@ namespace DinnerApp.Application.Services.Authentication
 
 
 
-        public Result<AuthenticationResult > Register(string firstName, string lastName, string email, string password)
+        public ErrorOr<AuthenticationResult > Register(string firstName, string lastName, string email, string password)
         {
 
             //validate the user does not exists
             if (_userRepository.GetUserByEmail(email) is not null) 
             {
-                return Result.Fail<AuthenticationResult>(new[] { new DuplicateEmailError() });
+                return Errors.User.DuplicateEmail;
             }
 
 
@@ -52,18 +53,18 @@ namespace DinnerApp.Application.Services.Authentication
                 token);
         }
 
-        public Result<AuthenticationResult > Login(string email, string password)
+        public ErrorOr<AuthenticationResult > Login(string email, string password)
         {
             // Validate the user exists
             if(_userRepository.GetUserByEmail(email) is not User user) 
             {
-                throw new Exception("User with given email does not exist!");
+                return Errors.Authentication.InvalidCredentials;
             }
 
             // validate the password
             if (user.Password != password) 
             {
-                throw new Exception("Incorrect Passowrd!");
+                return new[] { Errors.Authentication.InvalidCredentials };
             }
 
             //create JWT token
