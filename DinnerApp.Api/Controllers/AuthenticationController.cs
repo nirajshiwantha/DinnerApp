@@ -7,7 +7,7 @@ using DinnerApp.Contracts.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
 using DinnerApp.Application.Common.Errors;
-
+using FluentResults;
 
 namespace DinnerApp.Api.Controllers
 {
@@ -26,15 +26,24 @@ namespace DinnerApp.Api.Controllers
         [HttpPost("register")]
         public IActionResult Register(RegisterRequest request){
             
-            OneOf<AuthenticationResult, DuplicateEmailError> registerResult = _authenticationService.Register(
+            Result<AuthenticationResult> registerResult = _authenticationService.Register(
                 request.FirstName,
                 request.LastName,
                 request.Email,
                 request.Password);
 
-            return registerResult.Match(
-                    authResult => Ok(MapAuthResult(authResult)),
-                    _ => Problem(statusCode: StatusCodes.Status409Conflict, title: "Email Already Exisist!"));      
+            if (registerResult.IsSuccess)
+            {
+                return Ok(MapAuthResult(registerResult.Value));
+            }
+            var firstError = registerResult.Errors[0];
+
+            if (firstError is DuplicateEmailError) 
+            {
+                return Problem(statusCode: StatusCodes.Status409Conflict, detail: "Email Already Exisist!");
+            }
+
+            return Problem();      
         }
 
         private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
@@ -52,20 +61,13 @@ namespace DinnerApp.Api.Controllers
         public IActionResult Register(LoginRequest request){
 
 
-            OneOf<AuthenticationResult, DuplicateEmailError> loginResult = _authenticationService.Login(
+            Result<AuthenticationResult > loginResult = _authenticationService.Login(
                 request.Email,
                 request.Password);
 
-            if (loginResult.IsT0)
+            if (loginResult.IsSuccess)
             {
-                var authResult = loginResult.AsT0;
-                var response = new AuthenticationResponse(
-                authResult.User.Id,
-                authResult.User.FirstName,
-                authResult.User.LastName,
-                authResult.User.Email,
-                authResult.Token);
-                return Ok(response);
+                return Ok(MapAuthResult(loginResult.Value));
             }
 
             return Problem(statusCode: StatusCodes.Status500InternalServerError, title: "Internal Server Error!");

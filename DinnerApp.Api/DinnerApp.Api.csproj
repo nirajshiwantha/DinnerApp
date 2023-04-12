@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OneOf" Version="3.0.243" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DinnerApp.Contracts\DinnerApp.Contracts.csproj" />
     <ProjectReference Include="..\DinnerApp.Application\DinnerApp.Application.csproj" />
     <ProjectReference Include="..\DinnerApp.Infrastructure\DinnerApp.Infrastructure.csproj" />
