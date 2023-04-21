@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DinnerApp.Application.Services.Authentication;
 using DinnerApp.Contracts.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
@@ -10,28 +9,29 @@ using DinnerApp.Application.Common.Errors;
 using FluentResults;
 using ErrorOr;
 using DinnerApp.Domain.Common.Errors;
+using MediatR;
+using DinnerApp.Application.Authentication.Commands.Register;
+using DinnerApp.Application.Authentication.Queries.Login;
+using DinnerApp.Application.Authentication.Common;
 
 namespace DinnerApp.Api.Controllers
 {
     [Route("auth")]
     public class AuthenticationController : ApiController // This class inherits from the "ApiController" class not ControllerBase
     {
-        private readonly IAuthenticationService _authenticationService;
+        
+        private readonly IMediator _mediator;
 
-        public AuthenticationController(IAuthenticationService authenticationService)
+        public AuthenticationController(IMediator mediator)
         {
-            _authenticationService = authenticationService;
-            
+            _mediator = mediator;
         }
 
         [HttpPost("register")]
-        public IActionResult Register(RegisterRequest request){
+        public async Task<IActionResult> Register(RegisterRequest request){
 
-            var authResult = _authenticationService.Register(
-                request.FirstName,
-                request.LastName,
-                request.Email,
-                request.Password);
+            var command = new RegisterCommand(request.FirstName,request.LastName,request.Email,request.Password);
+            ErrorOr<AuthenticationResult> authResult = await  _mediator.Send(command);
 
             return authResult.Match(
                 authResult => Ok(MapAuthResult(authResult)),
@@ -41,12 +41,10 @@ namespace DinnerApp.Api.Controllers
 
 
         [HttpPost("login")]
-        public IActionResult Login(LoginRequest request){
+        public async Task<IActionResult> LoginAsync(LoginRequest request){
 
-
-            var loginResult = _authenticationService.Login(
-                request.Email,
-                request.Password);
+            var query = new LoginQuery(request.Email, request.Password);
+            var loginResult = await _mediator.Send(query);
 
             if (loginResult.IsError && loginResult.FirstError == Errors.Authentication.InvalidCredentials) {
                 return Problem(

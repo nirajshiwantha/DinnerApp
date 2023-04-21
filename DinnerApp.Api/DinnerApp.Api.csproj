@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.0.1" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DinnerApp.Contracts\DinnerApp.Contracts.csproj" />
     <ProjectReference Include="..\DinnerApp.Application\DinnerApp.Application.csproj" />
     <ProjectReference Include="..\DinnerApp.Infrastructure\DinnerApp.Infrastructure.csproj" />

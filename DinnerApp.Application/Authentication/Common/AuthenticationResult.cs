@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DinnerApp.Application.Services.Authentication
+namespace DinnerApp.Application.Authentication.Common
 {
     public record AuthenticationResult(
-        User User, 
+        User User,
         string Token
     );
 }
