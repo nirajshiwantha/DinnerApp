@@ -1,17 +1,13 @@
-
-using DinnerApp.Api.Common.Errors;
 using DinnerApp.Application;
 using DinnerApp.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
+using DinnerApp.Pre;
 
 var builder = WebApplication.CreateBuilder(args);
 {
     builder.Services
+        .AddPresentation()
         .AddApplication()
         .AddInfrastructure(builder.Configuration);
-    builder.Services.AddControllers();
-    builder.Services.AddSingleton<ProblemDetailsFactory, DinnerAppProblemDetailsFactory>();
 }
 
 var app = builder.Build();

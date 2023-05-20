@@ -16,9 +16,10 @@ namespace DinnerApp.Infrastructure.Persistance
             _users.Add(user);
         }
 
-        public User? GetUserByEmail(string email)
+        public Task<User> GetUserByEmail(string email)
         {
-            return _users.SingleOrDefault(u => u.Email == email);
+            var user = _users.SingleOrDefault(u => u.Email == email);
+            return Task.FromResult(user);
         }
     }
 }

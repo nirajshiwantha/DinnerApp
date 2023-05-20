@@ -14,7 +14,7 @@ namespace DinnerApp.Api.Controllers
         public IActionResult Error()
         {
             // Get the exception object from the current request context
-            Exception? exception = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
+            //Exception? exception = HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
 
             // Create a new ProblemDetails object
             return Problem();

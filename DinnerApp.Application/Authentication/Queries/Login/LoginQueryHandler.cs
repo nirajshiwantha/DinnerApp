@@ -11,16 +11,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DinnerApp.Application.Authentication.Common;
+using System.Collections;
 
 namespace DinnerApp.Application.Authentication.Queries.Login
 {
-    internal class LoginCommandHandler :
+    internal class LoginQueryHandler :
         IRequestHandler<LoginQuery, ErrorOr<AuthenticationResult>>
     {
         private readonly IJWTTokenGenerator _jwtTokenGenerator;
         private readonly IUserRepository _userRepository;
 
-        public LoginCommandHandler(
+        public LoginQueryHandler(
             IJWTTokenGenerator jwtTokenGenerator,
             IUserRepository userRepository)
         {
@@ -28,16 +29,16 @@ namespace DinnerApp.Application.Authentication.Queries.Login
             _userRepository = userRepository;
         }
 
-        public async Task<ErrorOr<AuthenticationResult>> Handle(LoginQuery query, CancellationToken cancellationToken)
+        public async Task<ErrorOr<AuthenticationResult>> Handle(LoginQuery request, CancellationToken cancellationToken)
         {
             // Validate the user exists
-            if (_userRepository.GetUserByEmail(query.Email) is not User user)
+            if (await _userRepository.GetUserByEmail(request.Email) is not User user)
             {
                 return Errors.Authentication.InvalidCredentials;
             }
 
             // validate the password
-            if (user.Password != query.Password)
+            if (user.Password != request.Password)
             {
                 return new[] { Errors.Authentication.InvalidCredentials };
             }
